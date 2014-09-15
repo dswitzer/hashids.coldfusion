@@ -1,4 +1,3 @@
-
 ![hashids](http://www.hashids.org.s3.amazonaws.com/public/img/hashids.png "Hashids")
 
 ======
@@ -15,65 +14,69 @@ Installation
 
 1. Copy the hashids.cfc to your server
 
+Updating from v0.3 to 1.0?
+-------
+
+Read the `CHANGELOG` at the bottom of this readme!
 
 Usage
 -------
 
-#### Encrypting one number
+#### Encoding one number
 
-You can pass a unique salt value so your hashes differ from everyone else's. I use "this is my salt" as an example.
+You can pass a unique salt value so your hashids differ from everyone else's. I use "this is my salt" as an example.
 
 ```javascript
 
 var hashids = new Hashids("this is my salt");
 
-var hash = hashids.encrypt(12345);
+var id = hashids.encode(12345);
 ```
 
-`hash` is now going to be:
+`id` is now going to be:
 
 	NkK9
 
-#### Decrypting
+#### Decoding
 
-Notice during decryption, same salt value is used:
+Notice during decoding, same salt value is used:
 
 ```javascript
 
 var hashids = new Hashids("this is my salt");
 
-var numbers = hashids.decrypt("NkK9");
+var numbers = hashids.decode("NkK9");
 ```
 
 `numbers` is now going to be:
 
 	[ 12345 ]
 
-#### Decrypting with different salt
+#### Decoding with different salt
 
-Decryption will not work if salt is changed:
+Decoding will not work if salt is changed:
 
 ```javascript
 
 var hashids = new Hashids("this is my pepper");
 
-var numbers = hashids.decrypt("NkK9");
+var numbers = hashids.decode("NkK9");
 ```
 
 `numbers` is now going to be:
 
 	[]
 
-#### Encrypting several numbers
+#### Encoding several numbers
 
 ```javascript
 
 var hashids = new Hashids("this is my salt");
 
-var hash = hashids.encrypt(683, 94108, 123, 5);
+var id = hashids.encode(683, 94108, 123, 5);
 ```
 
-`hash` is now going to be:
+`id` is now going to be:
 
 	aBMswoO2UB3Sj
 
@@ -82,51 +85,51 @@ You can also pass an array:
 ```javascript
 
 var arr = [683, 94108, 123, 5];
-var hash = hashids.encrypt(arr);
+var id = hashids.encode(arr);
 ```
 
-#### Decrypting is done the same way
+#### Decoding is done the same way
 
 ```javascript
 
 var hashids = new Hashids("this is my salt");
 
-var numbers = hashids.decrypt("aBMswoO2UB3Sj");
+var numbers = hashids.decode("aBMswoO2UB3Sj");
 ```
 
 `numbers` is now going to be:
 
 	[ 683, 94108, 123, 5 ]
 
-#### Encrypting and specifying minimum hash length
+#### Encoding and specifying minimum id length
 
-Here we encrypt integer 1, and set the **minimum** hash length to **8** (by default it's **0** -- meaning hashes will be the shortest possible length).
+Here we encode integer 1, and set the **minimum** id length to **8** (by default it's **0** -- meaning hashes will be the shortest possible length).
 
 ```javascript
 
 var hashids = new Hashids("this is my salt", 8);
 
-var hash = hashids.encrypt(1);
+var id = hashids.encode(1);
 ```
 
-`hash` is now going to be:
+`id` is now going to be:
 
 	gB0NV05e
 
-#### Decrypting
+#### Decoding
 
 ```javascript
 
 var hashids = new Hashids("this is my salt", 8);
 
-var numbers = hashids.decrypt("gB0NV05e");
+var numbers = hashids.decode("gB0NV05e");
 ```
 
 `numbers` is now going to be:
 
 	[ 1 ]
 
-#### Specifying custom hash alphabet
+#### Specifying custom id alphabet
 
 Here we set the alphabet to consist of valid hex characters: "0123456789abcdef"
 
@@ -134,10 +137,10 @@ Here we set the alphabet to consist of valid hex characters: "0123456789abcdef"
 
 var hashids = new Hashids(salt="this is my salt", alphabet="0123456789abcdef");
 
-var hash = hashids.encrypt(1234567);
+var id = hashids.encode(1234567);
 ```
 
-`hash` is now going to be:
+`id` is now going to be:
 
 	b332db5
 
@@ -153,7 +156,7 @@ Having said that, this algorithm does try to make these hashes unguessable and u
 
 var hashids = new Hashids("this is my salt");
 
-var hash = hashids.encrypt(5, 5, 5, 5);
+var id = hashids.encode(5, 5, 5, 5);
 ```
 
 You don't see any repeating patterns that might show there's 4 identical numbers in the hash:
@@ -166,24 +169,24 @@ Same with incremented numbers:
 
 var hashids = new Hashids("this is my salt");
 
-var hash = hashids.encrypt(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+var id = hashids.encode(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 ```
 
-`hash` will be :
+`id` will be :
 
 	kRHnurhptKcjIDTWC3sx
 
-#### Incrementing number hashes:
+#### Incrementing number ids:
 
 ```javascript
 
 var hashids = new Hashids("this is my salt");
 
-var hash1 = hashids.encrypt(1), /* NV */
-	hash2 = hashids.encrypt(2), /* 6m */
-	hash3 = hashids.encrypt(3), /* yD */
-	hash4 = hashids.encrypt(4), /* 2l */
-	hash5 = hashids.encrypt(5); /* rD */
+var id1 = hashids.encode(1), /* NV */
+	id2 = hashids.encode(2), /* 6m */
+	id3 = hashids.encode(3), /* yD */
+	id4 = hashids.encode(4), /* 2l */
+	id5 = hashids.encode(5); /* rD */
 ```
 
 Curses! #$%@
@@ -197,6 +200,19 @@ Therefore, the algorithm tries to avoid generating most common English curse wor
 
 Changelog
 -------
+
+**1.0.0**
+
+- Several public functions are renamed to be more appropriate:
+	- Function `encrypt()` changed to `encode()`
+	- Function `decrypt()` changed to `decode()`
+	- Function `encryptHex()` changed to `encodeHex()`
+	- Function `decryptHex()` changed to `decodeHex()`
+
+	Hashids was designed to encode integers, primary ids at most. We've had several requests to encrypt sensitive data with Hashids and this is the wrong algorithm for that. So to encourage more appropriate use, `encrypt/decrypt` is being "downgraded" to `encode/decode`.
+
+- Version tag added: `1.0`
+- `README.md` updated
 
 **0.1.0**
 

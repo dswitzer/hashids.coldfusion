@@ -13,7 +13,7 @@ component output="false" persistent="false" {
 	*/
 	variables.instance = {
 		// internal settings (GETTERS only)
-		  version= "0.1.0"
+		  version= "1.0.0"
 		, minAlphabetLength = 16
 		, seps= "cfhistuCFHISTU"
 		, guards= ""
@@ -228,98 +228,7 @@ component output="false" persistent="false" {
 		return createObject("java", "java.math.BigInteger").init(javaCast("long", arguments.input).toString()).remainder(createObject("java", "java.math.BigInteger").init(javaCast("long", arguments.modulus).toString())).longValue();
 	}
 
-
-
-	/**
-	* PUBLIC METHODS
-	*/
-	public string function encrypt() output="false" {
-		var results = "";
-		var argsLen = arrayLen(arguments);
-		var numbers = [];
-		var numberLen = 0;
-
-		// if nothing passed in
-		if( argsLen eq 0 ){
-			return results;
-		}
-
-		// convert the arguments into an array
-		for( var i=1; i <= argsLen; i++ ){
-			arrayAppend(numbers, arguments[i]);
-			numberLen++;
-		}
-
-		// if the first value in arguments, was actually an array, use that instead
-		if( isArray(numbers[1]) ){
-			numbers = numbers[1];
-			numberLen = arrayLen(numbers);
-		}
-
-
-		// make sure all the inputs are positive integers
-		for( var i=1; i <= numberLen; i++ ){
-			try {
-				// try to convert input into a long
-				numbers[i] = javaCast("long", numbers[i]);
-			} catch (Any e){
-				return results;
-			}
-
-			if( numbers[i] < 0 ){
-				return results;
-			}
-		}
-
-
-		return encode(numbers);
-	}
-
-	public array function decrypt(required string hash) output="false" {
-		var results = [];
-
-		if( !len(arguments.hash) || !isSimpleValue(arguments.hash) ){
-			return results;
-		}
-
-		return decode(arguments.hash, getAlphabet());
-	}
-
-	public function encryptHex(required string input) output="false" {
-		var i = 0;
-		var len = 0;
-		var numbers = 0;
-		var numbersLen = 0;
-
-		if( !reFindNoCase("^[0-9a-f]+$", arguments.input) ){
-			return "";
-		}
-
-		numbers = reMatch("[\w\W]{1,12}", arguments.input);
-		numbersLen = arrayLen(numbers);
-
-		for( i=1; i <= numbersLen; i++ ){
-			numbers[i] = createObject("java", "java.lang.Long").parseLong(javaCast("string", "1" & numbers[i]), javaCast("int", 16));
-		}
-
-		return this.encrypt(numbers);
-	}
-
-	public function decryptHex(required string hash) output="false" {
-		var results = "";
-		var i = 0;
-		var len = 0;
-		var numbers = this.decrypt(arguments.hash);
-		var numbersLen = arrayLen(numbers);
-
-		for( i=1; i <= numbersLen; i++){
-			results &= createObject("java", "java.math.BigInteger").init(javaCast("string", numbers[i])).toString(16).substring(1);
-		}
-
-		return results;
-	}
-
-	public string function encode(required array numbers) output="false" {
+	private string function encoder(required array numbers) output="false" {
 		var results = "";
 		var lottery = "";
 		var i = 0;
@@ -396,7 +305,7 @@ component output="false" persistent="false" {
 		return results;
 	}
 
-	public function decode(required string hash, required string alphabet) output="false" {
+	private function decoder(required string hash, required string alphabet) output="false" {
 		var results = [];
 		var i = 0;
 		var lottery = "";
@@ -432,6 +341,97 @@ component output="false" persistent="false" {
 				results = [];
 			}
 
+		}
+
+		return results;
+	}
+
+
+
+	/**
+	* PUBLIC METHODS
+	*/
+	public string function encode() output="false" {
+		var results = "";
+		var argsLen = arrayLen(arguments);
+		var numbers = [];
+		var numberLen = 0;
+
+		// if nothing passed in
+		if( argsLen eq 0 ){
+			return results;
+		}
+
+		// convert the arguments into an array
+		for( var i=1; i <= argsLen; i++ ){
+			arrayAppend(numbers, arguments[i]);
+			numberLen++;
+		}
+
+		// if the first value in arguments, was actually an array, use that instead
+		if( isArray(numbers[1]) ){
+			numbers = numbers[1];
+			numberLen = arrayLen(numbers);
+		}
+
+
+		// make sure all the inputs are positive integers
+		for( var i=1; i <= numberLen; i++ ){
+			try {
+				// try to convert input into a long
+				numbers[i] = javaCast("long", numbers[i]);
+			} catch (Any e){
+				return results;
+			}
+
+			if( numbers[i] < 0 ){
+				return results;
+			}
+		}
+
+
+		return encoder(numbers);
+	}
+
+	public array function decode(required string hash) output="false" {
+		var results = [];
+
+		if( !len(arguments.hash) || !isSimpleValue(arguments.hash) ){
+			return results;
+		}
+
+		return decoder(arguments.hash, getAlphabet());
+	}
+
+	public function encodeHex(required string input) output="false" {
+		var i = 0;
+		var len = 0;
+		var numbers = 0;
+		var numbersLen = 0;
+
+		if( !reFindNoCase("^[0-9a-f]+$", arguments.input) ){
+			return "";
+		}
+
+		numbers = reMatch("[\w\W]{1,12}", arguments.input);
+		numbersLen = arrayLen(numbers);
+
+		for( i=1; i <= numbersLen; i++ ){
+			numbers[i] = createObject("java", "java.lang.Long").parseLong(javaCast("string", "1" & numbers[i]), javaCast("int", 16));
+		}
+
+		return this.encode(numbers);
+	}
+
+	public function decodeHex(required string hash) output="false" {
+		var results = "";
+		var i = 0;
+		var len = 0;
+		var numbers = this.decode(arguments.hash);
+		var numbersLen = arrayLen(numbers);
+
+		for( i=1; i <= numbersLen; i++){
+			results &= createObject("java", "java.math.BigInteger").init(javaCast("string", numbers[i])).toString(16).substring(1);
 		}
 
 		return results;
