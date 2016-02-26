@@ -48,7 +48,7 @@ component extends="mxunit.framework.TestCase" output="false" persistent="false" 
 	public void function test_specifying_custom_hash_alphabet(){
 		var input = [1234567];
 		var salt = "this is my salt";
-		var expected = "bbdd589a";
+		var expected = "b332db5";
 
 		var hasher = new com.utils.Hashids(salt=salt, alphabet="0123456789abcdef");
 		var results = hasher.encode(input);

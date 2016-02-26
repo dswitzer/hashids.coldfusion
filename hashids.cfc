@@ -136,6 +136,7 @@ component output="false" persistent="false" {
 
 		var sepsLen = len(seps);
 		var j = 0;
+		var currentChar = "";
 
 		for( var i=1; i <= sepsLen; i++ ){
 			currentChar = mid(seps, i, 1);
@@ -159,7 +160,7 @@ component output="false" persistent="false" {
 		var sepDiff = alphabetLen / sepsLen;
 
 		if( !len(seps) || (sepDiff > getSepDiv()) ){
-			sepsLen = ceiling(sepDiff);
+			sepsLen = ceiling(alphabetLen / getSepDiv());
 			if( sepsLen == 1 ){
 				sepsLen++;
 			}
@@ -203,6 +204,7 @@ component output="false" persistent="false" {
 		}
 
 		var i = 0;
+		var j = 0;
 		var v = 0;
 		var p = 0;
 		var integer = 0;
@@ -250,14 +252,14 @@ component output="false" persistent="false" {
 
 		for( i=0; i < len; i++ ){
 //			numbersHashInt += (numbers[i+1] % (i + 100));
-			numbersHashInt += preciseMod(numbers[i+1], (i + 100));
+			numbersHashInt += preciseMod(arguments.numbers[i+1], (i + 100));
 		}
 
 		results = mid(alphabet, (numbersHashInt % len(alphabet))+1, 1);
 		lottery = results;
 
 		for( i=0; i < len; i++){
-			number = numbers[i+1];
+			number = arguments.numbers[i+1];
 			buffer = lottery & getSalt() & alphabet;
 
 			alphabet = consistentShuffle(alphabet, buffer.substring(0, len(alphabet)));
@@ -332,12 +334,12 @@ component output="false" persistent="false" {
 
 			for( i=0; i != len; i++ ){
 				subHash = hashArray[i+1];
-				buffer = lottery & getSalt() & alphabet;
-				alphabet = consistentShuffle(alphabet, buffer.substring(0, len(alphabet)));
-				arrayAppend(results, this.unhash(subHash, alphabet));
+				buffer = lottery & getSalt() & arguments.alphabet;
+				arguments.alphabet = consistentShuffle(arguments.alphabet, buffer.substring(0, len(arguments.alphabet)));
+				arrayAppend(results, this.unhash(subHash, arguments.alphabet));
 			}
 
-			if( this.encode(results) != hash ){
+			if( this.encode(results) != arguments.hash ){
 				results = [];
 			}
 
@@ -445,7 +447,7 @@ component output="false" persistent="false" {
 		do {
 //			hash = mid(arguments.alphabet, (arguments.input % alphabetLength)+1, 1) & hash;
 			hash = mid(arguments.alphabet, preciseMod(arguments.input, alphabetLength)+1, 1) & hash;
-			input = int(arguments.input / alphabetLength);
+			arguments.input = int(arguments.input / alphabetLength);
 		} while( arguments.input > 0 );
 
 		return hash;
